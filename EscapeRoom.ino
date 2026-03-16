@@ -101,6 +101,7 @@ void loop() {
           if (!timingStarted) { lightLowStartTime = millis(); timingStarted = true; }
           if (millis() - lightLowStartTime >= 2000) {
             digitalWrite(MOTOR_A, HIGH);
+            Serial.println("moving to puzzle 2");
             puzzleState = 1; timingStarted = false;
           }
         } else { timingStarted = false; }
@@ -113,6 +114,7 @@ void loop() {
         Serial.print("Temp: "); Serial.println(currentTemp);
         if (!isnan(currentTemp) && currentTemp <= (initialTemp - 2.0)) {
           digitalWrite(MOTOR_A, LOW);
+          Serial.println("moving to puzzle 3");
           generateSimonSequence();
           puzzleState = SIMON_SHOW;
         }
@@ -187,61 +189,10 @@ void checkUserSimon() {
       userIndex++;
       if (userIndex >= 8) { puzzleState = 3; }
     } else {
+      Serial.println("wrong, try again");
       userIndex = 0; showIndex = 0; puzzleState = SIMON_SHOW; delay(1000);
     }
   }
 }
 
 
-
-
-
-
-// יהודה דייויס - פתרון סופי לבעיית ה-0cm
-// #include <ESP8266WiFi.h>
-// #include <DHT.h>
-// #include <NewPing.h>
-
-// // נחזור לפינים שעבדו לך בקוד הישן
-// #define TRIGGER_PIN  D5  
-// #define ECHO_PIN     D6  
-// #define MAX_DISTANCE 100 
-
-// NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
-
-// // משתני המערכת שלך
-// int puzzleState = 3; // שמתי על 3 כדי שתבדוק ישר אם זה עובד!
-// unsigned long distStartTime = 0;
-// bool distTimingStarted = false;
-
-// void setup() {
-//   Serial.begin(9600); // המהירות שעבדה לך קודם
-//   pinMode(TRIGGER_PIN, OUTPUT);
-//   pinMode(ECHO_PIN, INPUT);
-//   Serial.println("Starting Distance Test...");
-// }
-
-// void loop() {
-//   if (puzzleState == 3) {
-//     // בדיקת מרחק
-//     delay(50); 
-//     int distance = sonar.ping_cm();
-    
-//     Serial.print("Distance: ");
-//     Serial.print(distance);
-//     Serial.println(" cm");
-
-//     if (distance >= 10 && distance <= 22) {
-//       if (!distTimingStarted) {
-//         distStartTime = millis();
-//         distTimingStarted = true;
-//       }
-//       if (millis() - distStartTime >= 2000) {
-//         Serial.println(">>> PUZZLE SOLVED! <<<");
-//         puzzleState = 4;
-//       }
-//     } else {
-//       distTimingStarted = false;
-//     }
-//   }
-// }
