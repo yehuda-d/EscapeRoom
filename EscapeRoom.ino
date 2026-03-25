@@ -1,11 +1,11 @@
 
-// יהודה דייויס 208912949 - בקר חידות משולב סיימון ו-MUX
+// יהודה דייויס 208912949 | אריאל חזוט 324056670 - בקר חידות  
 #include <ESP8266WiFi.h>
 #include <DHT.h>
 #include <NewPing.h>
 
-const char* ssid = "Reut";
-const char* password = "rd357821";
+const char* ssid = "EscapeRoom_Lock";
+const char* password = "666";
 
 // --- הגדרות MUX ---
 const int MUX_A = D5;
@@ -15,7 +15,7 @@ const int MUX_IO = A0;
 
 const int LDR_PIN = A0;
 
-// פינים שעובדים לפי הבדיקה האחרונה שלך
+
 #define TRIGGER_PIN D5  
 #define ECHO_PIN D6
 #define MAX_DISTANCE 100 
@@ -37,7 +37,7 @@ bool waitForRelease = false;
 #define SIMON_SHOW 201
 #define SIMON_PLAY 202
 
-// --- הגדרות שאר החידות ---
+
 const int MOTOR_A = D2;
 const int MOTOR_B = D1;
 const int DHT_PIN = D4;
@@ -80,7 +80,7 @@ void setup() {
   }
 
   dht.begin();
-  // setup_ClientWiFi(); // שים לב: אם אין אינטרנט זה עלול לתקוע את ה-Setup
+   setup_ClientWiFi(); 
 
   Serial.println("\n--- Calibrating... ---");
   delay(2000);
@@ -100,6 +100,7 @@ void loop() {
         if (currentLight < targetLight) {
           if (!timingStarted) { lightLowStartTime = millis(); timingStarted = true; }
           if (millis() - lightLowStartTime >= 2000) {
+            sendUpdateToServer(1);
             digitalWrite(MOTOR_A, HIGH);
             Serial.println("moving to puzzle 2");
             puzzleState = 1; timingStarted = false;
@@ -113,6 +114,7 @@ void loop() {
         float currentTemp = dht.readTemperature();
         Serial.print("Temp: "); Serial.println(currentTemp);
         if (!isnan(currentTemp) && currentTemp <= (initialTemp - 2.0)) {
+           sendUpdateToServer(2);
           digitalWrite(MOTOR_A, LOW);
           Serial.println("moving to puzzle 3");
           generateSimonSequence();
@@ -121,12 +123,12 @@ void loop() {
       }
       break;
 
+//חידה 3 סיימון
     case SIMON_SHOW: showSimonSequence(); break;
     case SIMON_PLAY: checkUserSimon(); break;
 
     case 3: // חידה 4: מרחק
       {
-        // --- שינוי קריטי: הגדרת פינים מחדש כדי לשחרר אותם מה-MUX ---
         pinMode(TRIGGER_PIN, OUTPUT);
         pinMode(ECHO_PIN, INPUT);
         
@@ -142,7 +144,8 @@ void loop() {
             Serial.println("Distance 20cm detected! Hold it...");
           }
           if (millis() - distStartTime >= 2000) {
-            Serial.println(">>> PUZZLE 4 SOLVED! <<<");
+             sendUpdateToServer(4);
+            Serial.println(">>> PUZZLE 4 SOLVED! You finished all the puzzles!!! <<<");
             puzzleState = 4;
           }
         } else {
@@ -187,12 +190,25 @@ void checkUserSimon() {
     digitalWrite(leds[pressed], LOW);
     if (pressed == lightSequence[userIndex]) {
       userIndex++;
-      if (userIndex >= 8) { puzzleState = 3; }
+      if (userIndex >= 8) {
+        Serial.println("moving to puzzle 4");
+         sendUpdateToServer(3);
+         puzzleState = 3; 
+         }
     } else {
       Serial.println("wrong, try again");
       userIndex = 0; showIndex = 0; puzzleState = SIMON_SHOW; delay(1000);
     }
   }
 }
+
+
+
+
+
+
+
+
+
 
 

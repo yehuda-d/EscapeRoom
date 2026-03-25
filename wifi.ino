@@ -1,7 +1,7 @@
 
 #include <ESP8266HTTPClient.h>
 
-String serverIP = "http://192.168.1.13"; 
+String serverIP = "http://192.168.4.1"; 
 
 extern const char* ssid;
 extern const char* password;
@@ -26,9 +26,11 @@ bool sendUpdateToServer(int step) {
     int httpCode = http.GET();
     http.end();
     
-    return (httpCode > 0); // מחזיר אמת אם השרת ענה
+    return (httpCode > 0); 
   }
   return false;
 }
 
  
+
+
